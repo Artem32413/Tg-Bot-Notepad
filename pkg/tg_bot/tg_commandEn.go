@@ -7,32 +7,22 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-var (
-	commandStr = "/start - запуст бота\n/help - список всех комманд\n/record - записаться, /cancel - прекратить запись\n/list - список всех заметок"
-	res []string
-)
-var numericKeyboard = tgbotapi.NewReplyKeyboard(
-	tgbotapi.NewKeyboardButtonRow(
-		tgbotapi.NewKeyboardButton("1"),
-		tgbotapi.NewKeyboardButton("2"),
-		tgbotapi.NewKeyboardButton("3"),
-	),
-)
 
 func Command(updates tgbotapi.UpdatesChannel, bot *tgbotapi.BotAPI) {
 	var err error
+	var slEl []string
 	for update := range updates {
 		if update.Message == nil {
 			continue
 		}
 		if update.Message.IsCommand() {
 			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
+			msg.ReplyMarkup = numericKeyboard 
 			switch update.Message.Command() {
 			case "help":
-				msg.Text = "Список комманд:\n"
 				msg.Text = commandStr
 			case "start":
-				msg.Text = "Привет! Это бот для работы с заметками.\nИспользуйте /help для получения списка всех доступных комманд."
+				msg.Text = hello
 				msg.ReplyToMessageID = update.Message.MessageID
 			case "record":
 				res, err = getNextValue(updates)
@@ -43,27 +33,36 @@ func Command(updates tgbotapi.UpdatesChannel, bot *tgbotapi.BotAPI) {
 				log.Printf("Значение - %s", res)
 				msg.Text = "Запись успешно добавлена"
 			case "list":
-				for _, el:= range res{
-					msg.Text += el
+				if res != nil {
+					for _, el := range res {
+						slEl = append(slEl, el...)
+					}
+					for _, elSl:= range slEl{
+						msg.Text += elSl
+					}
+				} else {
+					msg.Text = "Список заметок пуст"
 				}
+			default:
+				msg.Text = "Команда не определена"
 			}
 			if _, err := bot.Send(msg); err != nil {
-				log.Panic(err)
+				log.Println(err)
 				msg.Text = "Ошибка"
 			}
 			continue
 		}
-
-		Message(update, bot)
 	}
 }
-func getNextValue(updates tgbotapi.UpdatesChannel) ([]string, error) {
-	var sl []string
+func getNextValue(updates tgbotapi.UpdatesChannel) ([][]string, error) {
+	var sl [][]string
+	var list []string
 	for update := range updates {
+
 		userMessage := update.Message.Text
 		if !update.Message.IsCommand() {
-			sl = append(sl, userMessage)
-
+			list = append(list, userMessage)
+			sl = append(sl, list)
 		} else {
 			switch update.Message.Command() {
 			case "cancel":
