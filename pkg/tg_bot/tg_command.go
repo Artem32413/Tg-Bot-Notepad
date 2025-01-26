@@ -8,7 +8,8 @@ import (
 )
 
 var (
-	commandStr = "/start - запуст бота\n/help - список всех комманд\n/record - записаться, /cancel - прекратить запись\n"
+	commandStr = "/start - запуст бота\n/help - список всех комманд\n/record - записаться, /cancel - прекратить запись\n/list - список всех заметок"
+	res []string
 )
 var numericKeyboard = tgbotapi.NewReplyKeyboard(
 	tgbotapi.NewKeyboardButtonRow(
@@ -19,6 +20,7 @@ var numericKeyboard = tgbotapi.NewReplyKeyboard(
 )
 
 func Command(updates tgbotapi.UpdatesChannel, bot *tgbotapi.BotAPI) {
+	var err error
 	for update := range updates {
 		if update.Message == nil {
 			continue
@@ -33,13 +35,17 @@ func Command(updates tgbotapi.UpdatesChannel, bot *tgbotapi.BotAPI) {
 				msg.Text = "Привет! Это бот для работы с заметками.\nИспользуйте /help для получения списка всех доступных комманд."
 				msg.ReplyToMessageID = update.Message.MessageID
 			case "record":
-				res, err := getNextValue(updates)
+				res, err = getNextValue(updates)
 				if err != nil {
 					log.Println(err)
 					msg.Text = "Ошибка"
 				}
 				log.Printf("Значение - %s", res)
 				msg.Text = "Запись успешно добавлена"
+			case "list":
+				for _, el:= range res{
+					msg.Text += el
+				}
 			}
 			if _, err := bot.Send(msg); err != nil {
 				log.Panic(err)
