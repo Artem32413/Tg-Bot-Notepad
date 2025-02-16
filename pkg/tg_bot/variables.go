@@ -3,7 +3,7 @@ package tgbot
 import tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
 type Commands interface {
-	Command(updates tgbotapi.UpdatesChannel, bot *tgbotapi.BotAPI)
+	Command(email, password string, updates tgbotapi.UpdatesChannel, bot *tgbotapi.BotAPI)
 }
 type InfoSave struct {
 	sl   [][]string
@@ -30,7 +30,9 @@ var (
 		),
 		tgbotapi.NewKeyboardButtonRow(
 			tgbotapi.NewKeyboardButton("/help"),
+			tgbotapi.NewKeyboardButton("/profil"),
 			tgbotapi.NewKeyboardButton("/start"),
 		),
 	)
+	
 )

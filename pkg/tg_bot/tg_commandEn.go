@@ -7,18 +7,26 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-func (s InfoSave) Command(updates tgbotapi.UpdatesChannel, bot *tgbotapi.BotAPI) {
+func (s InfoSave) Command(email, password string, updates tgbotapi.UpdatesChannel, bot *tgbotapi.BotAPI) {
+	inlineKeyboard := tgbotapi.NewInlineKeyboardMarkup(
+		tgbotapi.NewInlineKeyboardRow(
+			tgbotapi.NewInlineKeyboardButtonData("Удалить", "data_1"),
+		),
+		)
 	for update := range updates {
 		comm := update.Message.Command()
 		if update.Message == nil {
 			continue
 		}
 		if update.Message.IsCommand() {
+			
 			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
 			msg.ReplyMarkup = numericKeyboard
 			switch comm {
 			case "help":
 				msg.Text = commandStr
+			case "profil":
+				msg.Text = fmt.Sprintf("Email: %s\nPassword: %s", email, password)
 			case "start":
 				msg.Text = hello
 				msg.ReplyToMessageID = update.Message.MessageID
@@ -39,6 +47,7 @@ func (s InfoSave) Command(updates tgbotapi.UpdatesChannel, bot *tgbotapi.BotAPI)
 
 			case "list":
 				msg.Text = "Твои заметки: "
+				msg.ReplyMarkup = inlineKeyboard
 				if res != nil {
 					for _, el := range res {
 						s.slEl = append(s.slEl, el...)

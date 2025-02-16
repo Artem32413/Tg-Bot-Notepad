@@ -1,4 +1,4 @@
-package mysql
+package postgres
 
 import (
 	"fmt"
@@ -22,7 +22,7 @@ func Connect() (*sqlx.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	inf.LoadEnvVars()
+	inf.LoadEnvValues()
 	connStr := fmt.Sprintf("user=%s password=%s dbname=%s sslMode port=%s host=%s",
 		inf.user, inf.password, inf.dbName, inf.dbport, inf.dbhost)
 	conn, err := sqlx.Connect("postgres", connStr)

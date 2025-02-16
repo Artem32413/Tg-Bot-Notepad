@@ -1,6 +1,7 @@
 package tgbot
 
 import (
+	"fmt"
 	"os"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -27,6 +28,11 @@ func Run() {
 	updateConfig.Timeout = 60
 
 	updates := b.bot.GetUpdatesChan(updateConfig)
-	c.Command(updates, b.bot)
+	email, password, err:= RegistrUser(updates, b.bot)
+	if err != nil{
+		panic(err)
+	}
+	fmt.Println(email, password)
+	c.Command(email, password, updates, b.bot)
 
 }
