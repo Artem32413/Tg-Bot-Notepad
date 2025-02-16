@@ -5,26 +5,28 @@ import (
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/joho/godotenv"
-	
+)
+
+var (
+	c Commands
+	b Bot
 )
 
 func Run() {
-	err := godotenv.Load(".env")
-	if err != nil {
+	c = &InfoSave{}
+	if err := godotenv.Load(".env"); err != nil {
 		panic(err)
 	}
 	token := os.Getenv("TELEGRAM_APITOKEN")
-	bot, err := tgbotapi.NewBotAPI(token)
-	if err != nil {
+	if b.bot, err = tgbotapi.NewBotAPI(token); err != nil {
 		panic(err)
 	}
-	bot.Debug = true
+	b.bot.Debug = true
 	updateConfig := tgbotapi.NewUpdate(0)
 
 	updateConfig.Timeout = 60
 
-	updates := bot.GetUpdatesChan(updateConfig)
-	
-	Command(updates, bot)
+	updates := b.bot.GetUpdatesChan(updateConfig)
+	c.Command(updates, b.bot)
 
 }

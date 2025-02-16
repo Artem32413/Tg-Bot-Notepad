@@ -5,15 +5,9 @@ import (
 	"log"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-
 )
-type infoSave struct{
-	sl [][]string
-	list []string
-	slEl []string
-}
-func Command(updates tgbotapi.UpdatesChannel, bot *tgbotapi.BotAPI) {
-	var s infoSave
+
+func (s InfoSave) Command(updates tgbotapi.UpdatesChannel, bot *tgbotapi.BotAPI) {
 	for update := range updates {
 		comm := update.Message.Command()
 		if update.Message == nil {
@@ -66,7 +60,7 @@ func Command(updates tgbotapi.UpdatesChannel, bot *tgbotapi.BotAPI) {
 		}
 	}
 }
-func (i infoSave) getNextValue(updates tgbotapi.UpdatesChannel) ([][]string, error) {
+func (i InfoSave) getNextValue(updates tgbotapi.UpdatesChannel) ([][]string, error) {
 	for update := range updates {
 		userMessage := update.Message.Text
 		if !update.Message.IsCommand() {
@@ -78,4 +72,3 @@ func (i infoSave) getNextValue(updates tgbotapi.UpdatesChannel) ([][]string, err
 	}
 	return nil, nil
 }
-
