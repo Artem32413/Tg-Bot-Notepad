@@ -2,27 +2,33 @@ package mysql
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
 )
 
+type DBInfo struct {
+	user     string
+	password string
+	dbName   string
+	dbport   string
+	dbhost   string
+}
+
 func Connect() (*sqlx.DB, error) {
+	
+	var inf DBInfo
 	err := godotenv.Load(".env")
 	if err != nil {
 		return nil, err
 	}
-	user := os.Getenv("MY_NAME")
-	password := os.Getenv("MY_PASSWORD")
-	dbName := os.Getenv("DB_NAME")
-	dbport := os.Getenv("DB_PORT")
-	dbhost := os.Getenv("DB_HOST")
+	inf.LoadEnvVars()
 	connStr := fmt.Sprintf("user=%s password=%s dbname=%s sslMode port=%s host=%s",
-		user, password, dbName, dbport, dbhost)
+		inf.user, inf.password, inf.dbName, inf.dbport, inf.dbhost)
 	conn, err := sqlx.Connect("postgres", connStr)
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println(conn)
 	return conn, nil
 }
