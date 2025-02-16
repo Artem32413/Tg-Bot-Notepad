@@ -5,39 +5,51 @@ import (
 	"log"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+
 )
-
-
+type infoSave struct{
+	sl [][]string
+	list []string
+	slEl []string
+}
 func Command(updates tgbotapi.UpdatesChannel, bot *tgbotapi.BotAPI) {
-	var err error
-	var slEl []string
+	var s infoSave
 	for update := range updates {
+		comm := update.Message.Command()
 		if update.Message == nil {
 			continue
 		}
 		if update.Message.IsCommand() {
 			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
-			msg.ReplyMarkup = numericKeyboard 
-			switch update.Message.Command() {
+			msg.ReplyMarkup = numericKeyboard
+			switch comm {
 			case "help":
 				msg.Text = commandStr
 			case "start":
 				msg.Text = hello
 				msg.ReplyToMessageID = update.Message.MessageID
 			case "record":
-				res, err = getNextValue(updates)
-				if err != nil {
+				msg.Text = "Введите заметку..."
+				if _, err := bot.Send(msg); err != nil {
 					log.Println(err)
 					msg.Text = "Ошибка"
 				}
-				log.Printf("Значение - %s", res)
-				msg.Text = "Запись успешно добавлена"
+				res, err = s.getNextValue(updates)
+				if err != nil {
+					log.Println(err)
+					msg.Text = "Ошибка"
+				} else {
+					log.Printf("Значение - %s", res)
+					msg.Text = "Запись успешно добавлена"
+				}
+
 			case "list":
+				msg.Text = "Твои заметки: "
 				if res != nil {
 					for _, el := range res {
-						slEl = append(slEl, el...)
+						s.slEl = append(s.slEl, el...)
 					}
-					for _, elSl:= range slEl{
+					for _, elSl := range s.slEl {
 						msg.Text += elSl
 					}
 				} else {
@@ -54,23 +66,16 @@ func Command(updates tgbotapi.UpdatesChannel, bot *tgbotapi.BotAPI) {
 		}
 	}
 }
-func getNextValue(updates tgbotapi.UpdatesChannel) ([][]string, error) {
-	var sl [][]string
-	var list []string
+func (i infoSave) getNextValue(updates tgbotapi.UpdatesChannel) ([][]string, error) {
 	for update := range updates {
-
 		userMessage := update.Message.Text
 		if !update.Message.IsCommand() {
-			list = append(list, userMessage)
-			sl = append(sl, list)
-		} else {
-			switch update.Message.Command() {
-			case "cancel":
-				return sl, nil
-			}
+			i.list = append(i.list, userMessage)
+			i.sl = append(i.sl, i.list)
+			return i.sl, nil
 		}
-		fmt.Println(sl)
+		fmt.Println(i.sl)
 	}
-
 	return nil, nil
 }
+
